@@ -63,7 +63,7 @@ class SensorInterface(QMainWindow):
         # Tarjetas de datos
         self.temp_label = self.crear_tarjeta("Temperatura: -- °C", "#2980B9")
         self.hum_label = self.crear_tarjeta("Humedad: -- %", "#27AE60")
-        self.air_quality_label = self.crear_tarjeta("Calidad del Aire: --", "#8E44AD")
+        self.air_quality_label = self.crear_tarjeta("Calidad del Aire: -- %", "#8E44AD")
         self.soil_moisture_label = self.crear_tarjeta("Humedad del Suelo: -- %", "#D35400")
 
         data_layout.addWidget(self.temp_label["widget"])
@@ -184,21 +184,28 @@ class SensorInterface(QMainWindow):
                     parts = data.split(",")
                     temperatura = float(parts[0].split(":")[1])
                     humedad = float(parts[1].split(":")[1])
-                    calidad_aire = float(parts[2].split(":")[1])
-                    humedad_suelo = float(parts[3].split(":")[1])
+
+                    # Escala de humedad del aire (asumir valor de 0 a 1023)
+                    calidad_aire_raw = float(parts[2].split(":")[1])  # Valor de calidad del aire
+                    humedad_suelo_raw = float(parts[3].split(":")[1])  # Valor de humedad del suelo
+
+                    # Convertir a porcentaje
+                    calidad_aire_porcentaje = (calidad_aire_raw / 1000) * 100  # Asumiendo máximo de 1000
+                    humedad_suelo_porcentaje = (humedad_suelo_raw / 1023) * 100  # Asumiendo máximo de 1023
+
                     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
                     # Agregar datos a las series
                     self.series_temp.append(self.tiempo, temperatura)
                     self.series_hum.append(self.tiempo, humedad)
-                    self.series_air_quality.append(self.tiempo, calidad_aire)
-                    self.series_soil_moisture.append(self.tiempo, humedad_suelo)
+                    self.series_air_quality.append(self.tiempo, calidad_aire_porcentaje)
+                    self.series_soil_moisture.append(self.tiempo, humedad_suelo_porcentaje)
 
                     # Actualizar las tarjetas de valores
                     self.temp_label["label"].setText(f"Temperatura: {temperatura:.2f} °C")
                     self.hum_label["label"].setText(f"Humedad: {humedad:.2f} %")
-                    self.air_quality_label["label"].setText(f"Calidad del Aire: {calidad_aire:.2f}")
-                    self.soil_moisture_label["label"].setText(f"Humedad del Suelo: {humedad_suelo:.2f} %")
+                    self.air_quality_label["label"].setText(f"Calidad del Aire: {calidad_aire_porcentaje:.2f} %")
+                    self.soil_moisture_label["label"].setText(f"Humedad del Suelo: {humedad_suelo_porcentaje:.2f} %")
 
                     # Calcular el valor máximo dinámico del eje Y
                     max_value = max(
@@ -214,7 +221,7 @@ class SensorInterface(QMainWindow):
                     self.axis_y.setRange(0, max_value)
 
                     # Guardar datos en la base de datos
-                    self.guardar_datos_db(timestamp, temperatura, humedad, calidad_aire, humedad_suelo)
+                    self.guardar_datos_db(timestamp, temperatura, humedad, calidad_aire_porcentaje, humedad_suelo_porcentaje)
 
                     self.tiempo += 1
                 except (IndexError, ValueError) as e:
