@@ -63,8 +63,8 @@ class SensorInterface(QMainWindow):
         # Tarjetas de datos
         self.temp_label = self.crear_tarjeta("Temperatura: -- °C", "#2980B9")
         self.hum_label = self.crear_tarjeta("Humedad: -- %", "#27AE60")
-        self.air_quality_label = self.crear_tarjeta("Calidad del Aire: -- %", "#8E44AD")
-        self.soil_moisture_label = self.crear_tarjeta("Humedad del Suelo: -- %", "#D35400")
+        self.air_quality_label = self.crear_tarjeta("Calidad del Aire: -- %", "#D35400")
+        self.soil_moisture_label = self.crear_tarjeta("Humedad del Suelo: -- %", "#8E44AD")
 
         data_layout.addWidget(self.temp_label["widget"])
         data_layout.addWidget(self.hum_label["widget"])
